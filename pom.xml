@@ -16,7 +16,6 @@
 		spring batch
 	</description>
 	<dependencies>
-
 		<!-- Spring... -->
 		<dependency>
 			<groupId>org.springframework.batch</groupId>
@@ -33,4 +32,11 @@
 			<artifactId>postgresql</artifactId>
 		</dependency>
 	</dependencies>
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/klee-contrib/spring-batch-bulk</url>
+		</repository>
+	</distributionManagement>
 </project>
