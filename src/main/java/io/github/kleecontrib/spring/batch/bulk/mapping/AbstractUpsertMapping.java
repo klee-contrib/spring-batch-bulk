@@ -18,15 +18,33 @@ public abstract class AbstractUpsertMapping<E> extends AbstractMapping<E> {
 	private final String primaryKey;
 	private final String tableName;
 
+	/**
+	 * @param schemaName schema name for db connection
+	 * @param tableName table name for bulk insert
+	 * @param primaryKey column name of the primary key
+	 */
 	protected AbstractUpsertMapping(String schemaName, String tableName, String primaryKey) {
 		this(new ValueHandlerProvider(), schemaName, tableName, false, primaryKey);
 	}
 
+	/**
+	 * @param schemaName schema name for db connection
+	 * @param tableName table name for bulk insert
+	 * @param usePostgresQuoting if should use postgresql quoting
+	 * @param primaryKey column name of the primary key
+	 */
 	protected AbstractUpsertMapping(String schemaName, String tableName, boolean usePostgresQuoting,
 			String primaryKey) {
 		this(new ValueHandlerProvider(), schemaName, tableName, usePostgresQuoting, primaryKey);
 	}
 
+	/**
+	 * @param provider value provider
+	 * @param schemaName schema name for db connection
+	 * @param tableName table name for bulk insert
+	 * @param usePostgresQuoting if should use postgresql quoting
+	 * @param primaryKey column name of the primary key
+	 */
 	protected AbstractUpsertMapping(IValueHandlerProvider provider, String schemaName, String tableName,
 			boolean usePostgresQuoting, String primaryKey) {
 		super(provider, schemaName, tableName + "_temp_" + getNextIdx(), usePostgresQuoting);

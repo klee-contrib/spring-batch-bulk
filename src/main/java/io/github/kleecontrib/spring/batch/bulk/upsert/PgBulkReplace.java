@@ -21,16 +21,23 @@ import io.github.kleecontrib.spring.batch.bulk.mapping.AbstractReplaceMapping;
  * Bulk upsert class, to insert or update rows if it already exist
  * 
  * @author gderuette
- * @param <T>
+ * @param <T> Writted class object
  */
 public class PgBulkReplace<T> implements IPgBulkInsert<T> {
 	private final PgBulkInsert<T> pgBulkInsert;
 	private final AbstractReplaceMapping<T> mapping;
 
+	/**
+	 * @param mapping replace mapping with table name set
+	 */
 	public PgBulkReplace(AbstractReplaceMapping<T> mapping) {
 		this(new Configuration(), mapping);
 	}
 
+	/**
+	 * @param configuration Configuration where buffer size is set
+	 * @param mapping replace mapping with table name set
+	 */
 	public PgBulkReplace(IConfiguration configuration, AbstractReplaceMapping<T> mapping) {
 		Objects.requireNonNull(configuration, "'configuration' has to be set");
 		Objects.requireNonNull(mapping, "'mapping' has to be set");
@@ -38,9 +45,7 @@ public class PgBulkReplace<T> implements IPgBulkInsert<T> {
 		this.mapping = mapping;
 	}
 
-	/**
-	 * Bulk replace entities : truncate table and then insert all data in table
-	 */
+	@Override
 	public void saveAll(PGConnection pgConnection, Stream<T> entities) throws SQLException {
 		try (Statement statement = ((Connection) pgConnection).createStatement()) {
 			String truncateQuery = String.format("truncate table %s", mapping.getTableName());
@@ -49,6 +54,11 @@ public class PgBulkReplace<T> implements IPgBulkInsert<T> {
 		}
 	}
 
+	/**
+	 * @param connection Pg connection to DB
+	 * @param entities list of entities to save
+	 * @throws SQLException if exception during replace
+	 */
 	public void saveAll(PGConnection connection, Collection<T> entities) throws SQLException {
 		saveAll(connection, entities.stream());
 	}

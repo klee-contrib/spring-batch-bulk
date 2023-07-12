@@ -19,23 +19,21 @@ import io.github.kleecontrib.spring.batch.bulk.mapping.AbstractUpsertMapping;
  * 
  * Item writer based on bulk insert or bulk upsert
  * 
- * @param <T>
+ * @param <T> Writted class object
  */
 public class BulkItemWriter<T> implements ItemWriter<T> {
 
 	private final DataSource dataSource;
-	private final AbstractMapping<T> mapping;
+	private final IPgBulkInsert<T> bulkInsert;
 
+	/**
+	 * @param dataSource data source
+	 * @param mapping column mapping
+	 */
 	public BulkItemWriter(DataSource dataSource, AbstractMapping<T> mapping) {
 		Objects.requireNonNull(dataSource, "'dataSource' has to be set");
 		Objects.requireNonNull(mapping, "'mapping' has to be set");
 		this.dataSource = dataSource;
-		this.mapping = mapping;
-	}
-
-	@Override
-	public void write(Chunk<? extends T> itemsChunk) throws Exception {
-		IPgBulkInsert<T> bulkInsert;
 		if (mapping instanceof AbstractUpsertMapping<T> upsertMapping) {
 			bulkInsert = new PgBulkUpsert<>(upsertMapping);
 		} else if (mapping instanceof AbstractReplaceMapping<T> replaceMapping) {
@@ -43,7 +41,10 @@ public class BulkItemWriter<T> implements ItemWriter<T> {
 		} else {
 			bulkInsert = new PgBulkInsert<>(mapping);
 		}
+	}
 
+	@Override
+	public void write(Chunk<? extends T> itemsChunk) throws Exception {
 		@SuppressWarnings("unchecked")
 		List<T> itemsList = (List<T>) itemsChunk.getItems();
 		try (var connection = dataSource.getConnection()) {

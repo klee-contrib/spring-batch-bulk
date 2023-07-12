@@ -22,16 +22,23 @@ import io.github.kleecontrib.spring.batch.bulk.mapping.AbstractUpsertMapping;
  * Bulk upsert class, to insert or update rows if it already exist
  * 
  * @author gderuette
- * @param <T>
+ * @param <T> Writted class object
  */
 public class PgBulkUpsert<T> implements IPgBulkInsert<T> {
 	private final PgBulkInsert<T> pgBulkInsert;
 	private final AbstractUpsertMapping<T> mapping;
 
+	/**
+	 * @param mapping upsert mapping with table name and primary key set
+	 */
 	public PgBulkUpsert(AbstractUpsertMapping<T> mapping) {
 		this(new Configuration(), mapping);
 	}
 
+	/**
+	 * @param configuration Configuration where buffer size is set
+	 * @param mapping       upsert mapping with table name and primary key set
+	 */
 	public PgBulkUpsert(IConfiguration configuration, AbstractUpsertMapping<T> mapping) {
 		Objects.requireNonNull(configuration, "'configuration' has to be set");
 		Objects.requireNonNull(mapping, "'mapping' has to be set");
@@ -39,10 +46,7 @@ public class PgBulkUpsert<T> implements IPgBulkInsert<T> {
 		this.mapping = mapping;
 	}
 
-	/**
-	 * Bulk upsert entities : creates a temporary table, insert all values in it and
-	 * then try to copy from the temporary table to the target.
-	 */
+	@Override
 	public void saveAll(PGConnection pgConnection, Stream<T> entities) throws SQLException {
 		try (Statement statement = ((Connection) pgConnection).createStatement()) {
 			String tempTableQuery = String.format("create table if not exists %s as select * from %s with no data;",
@@ -65,6 +69,12 @@ public class PgBulkUpsert<T> implements IPgBulkInsert<T> {
 		}
 	}
 
+
+	/**
+	 * @param connection db connection
+	 * @param entities list of entities to save
+	 * @throws SQLException in case of sql exception during upsert
+	 */
 	public void saveAll(PGConnection connection, Collection<T> entities) throws SQLException {
 		saveAll(connection, entities.stream());
 	}
