@@ -12,6 +12,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 
 /**
  * Class to create a query tasklet
+ * @author gderuette
  */
 public class QueryTasklet implements Tasklet {
 
@@ -20,7 +21,7 @@ public class QueryTasklet implements Tasklet {
 
 	/**
 	 * @param dataSource the source to run the query
-	 * @param tableName the table name 
+	 * @param query the query to run
 	 */
 	public QueryTasklet(DataSource dataSource, String query) {
 		this.dataSource = dataSource;
