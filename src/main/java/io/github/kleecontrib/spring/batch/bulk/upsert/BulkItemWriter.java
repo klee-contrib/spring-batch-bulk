@@ -12,7 +12,6 @@ import de.bytefish.pgbulkinsert.IPgBulkInsert;
 import de.bytefish.pgbulkinsert.PgBulkInsert;
 import de.bytefish.pgbulkinsert.mapping.AbstractMapping;
 import de.bytefish.pgbulkinsert.util.PostgreSqlUtils;
-import io.github.kleecontrib.spring.batch.bulk.mapping.AbstractReplaceMapping;
 import io.github.kleecontrib.spring.batch.bulk.mapping.AbstractUpsertMapping;
 
 /**
@@ -28,7 +27,7 @@ public class BulkItemWriter<T> implements ItemWriter<T> {
 
 	/**
 	 * @param dataSource data source
-	 * @param mapping column mapping
+	 * @param mapping    column mapping
 	 */
 	public BulkItemWriter(DataSource dataSource, AbstractMapping<T> mapping) {
 		Objects.requireNonNull(dataSource, "'dataSource' has to be set");
@@ -36,8 +35,6 @@ public class BulkItemWriter<T> implements ItemWriter<T> {
 		this.dataSource = dataSource;
 		if (mapping instanceof AbstractUpsertMapping<T> upsertMapping) {
 			bulkInsert = new PgBulkUpsert<>(upsertMapping);
-		} else if (mapping instanceof AbstractReplaceMapping<T> replaceMapping) {
-			bulkInsert = new PgBulkReplace<>(replaceMapping);
 		} else {
 			bulkInsert = new PgBulkInsert<>(mapping);
 		}
