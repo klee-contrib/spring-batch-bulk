@@ -49,30 +49,34 @@ public class PgBulkUpsert<T> implements IPgBulkInsert<T> {
 	@Override
 	public void saveAll(PGConnection pgConnection, Stream<T> entities) throws SQLException {
 		try (Statement statement = ((Connection) pgConnection).createStatement()) {
-			String tempTableQuery = String.format("create table if not exists %s as select * from %s with no data;",
-					this.mapping.getTempTableName(), this.mapping.getTableName());
-			statement.execute(tempTableQuery);
-			pgBulkInsert.saveAll(pgConnection, entities);
-			StringBuilder insertQuery = new StringBuilder(String.format(
-					"insert into %s select * from %s on conflict (%s) do update ", this.mapping.getTableName(),
-					this.mapping.getTempTableName(), this.mapping.getPrimaryKey()));
+			try {
+				String tempTableQuery = String.format("create table if not exists %s as select * from %s with no data;",
+						this.mapping.getTempTableName(), this.mapping.getTableName());
+				statement.execute(tempTableQuery);
+				String truncateQuery = String.format("truncate table %s", this.mapping.getTempTableName());
+				statement.execute(truncateQuery);
+				pgBulkInsert.saveAll(pgConnection, entities);
+				StringBuilder insertQuery = new StringBuilder(String.format(
+						"insert into %s select * from %s on conflict (%s) do update ", this.mapping.getTableName(),
+						this.mapping.getTempTableName(), this.mapping.getPrimaryKey()));
 
-			String setColumns = this.mapping.getColumns().stream()
-					.map(column -> String.format(" %s = EXCLUDED.%s", column.getColumnName(), column.getColumnName()))
-					.collect(Collectors.joining(","));
+				String setColumns = this.mapping.getColumns().stream().map(
+						column -> String.format(" %s = EXCLUDED.%s", column.getColumnName(), column.getColumnName()))
+						.collect(Collectors.joining(","));
 
-			insertQuery.append(" set ");
-			insertQuery.append(setColumns);
-			insertQuery.append(';');
-			statement.execute(insertQuery.toString());
-			statement.execute("drop table if exists " + this.mapping.getTempTableName());
+				insertQuery.append(" set ");
+				insertQuery.append(setColumns);
+				insertQuery.append(';');
+				statement.execute(insertQuery.toString());
+			} finally {
+				statement.execute("drop table if exists " + this.mapping.getTempTableName());
+			}
 		}
 	}
 
-
 	/**
 	 * @param connection db connection
-	 * @param entities list of entities to save
+	 * @param entities   list of entities to save
 	 * @throws SQLException in case of sql exception during upsert
 	 */
 	public void saveAll(PGConnection connection, Collection<T> entities) throws SQLException {
