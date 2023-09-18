@@ -51,6 +51,10 @@
 			<groupId>org.springframework.batch</groupId>
 			<artifactId>spring-batch-core</artifactId>
 		</dependency>
+		<dependency>
+		    <groupId>org.springframework.boot</groupId> 
+		    <artifactId>spring-boot-starter-data-jdbc</artifactId>
+		</dependency> 
 		<!-- Librairie de bulk insert... -->
 		<dependency>
 			<groupId>de.bytefish</groupId>
