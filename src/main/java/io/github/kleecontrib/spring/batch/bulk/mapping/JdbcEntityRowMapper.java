@@ -77,11 +77,22 @@ public class JdbcEntityRowMapper<T> implements RowMapper<T> {
 	protected void initialize(Class<?> mappedClass) {
 		this.mappedFields = new HashMap<>();
 		this.mappedProperties = new HashSet<>();
+		mapFields(mappedClass);
+	}
+
+	/**
+	 * Initialize the annotated and bean property mapping metadata for the given
+	 * class.
+	 *
+	 * @param mappedClass - the mapped class.
+	 */
+	protected void mapFields(Class<?> mappedClass) {
 		for (Field field : mappedClass.getDeclaredFields()) {
 			mapAnnotated(mappedClass, field);
 		}
-		if(mappedClass.getEnclosingClass() != null) {
-			initialize(mappedClass.getEnclosingClass());
+
+		if (mappedClass.getSuperclass() != null) {
+			mapFields(mappedClass.getSuperclass());
 		}
 	}
 
